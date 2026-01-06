@@ -1,0 +1,68 @@
+# -------------------------
+# PYTHON
+# -------------------------
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.db
+*.sqlite3
+
+# Virtual environments
+venv/
+.env
+.env.*
+
+# Pydantic / cache
+*.log
+
+# -------------------------
+# NODE / FRONTEND
+# -------------------------
+frontend/node_modules/
+frontend/dist/
+frontend/.vite/
+
+# npm / yarn logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# -------------------------
+# DOCKER
+# -------------------------
+# Docker volumes / data
+docker-data/
+data/
+postgres-data/
+*/__pycache__/
+
+# Ignore Docker build cache
+*.pid
+*.sock
+
+# -------------------------
+# PROTO BUFFERS
+# -------------------------
+proto/*.pyc
+
+proto/__pycache__/
+
+# -------------------------
+# EDITOR FILES
+# -------------------------
+.vscode/
+.idea/
+.DS_Store
+
+# -------------------------
+# OTHER
+# -------------------------
+*.tmp
+*.swp
+*.bak
+
+
+
+*.egg-info/
+openapi.json

@@ -1,0 +1,46 @@
+syntax = "proto3";
+
+package taskflow;
+
+// ============================
+//  TASK EXECUTION MESSAGES
+// ============================
+
+// Message to send task details
+message TaskRequest {
+  int32 id = 1;
+  string command = 2;
+}
+
+// Response from Worker after executing task
+message TaskResponse {
+  int32 id = 1;
+  string status = 2;
+  string message = 3;
+}
+
+// ============================
+//  HEARTBEAT MESSAGES
+// ============================
+
+// Heartbeat ping sent by Worker to Coordinator
+message HeartbeatRequest {
+  string hostname = 1; // e.g., "Shrinedhi-Laptop"
+}
+
+// Response from Coordinator acknowledging heartbeat
+message HeartbeatResponse {
+  string status = 1; // e.g., "ack"
+  string message = 2; // optional, "Worker registered" or "Heartbeat updated"
+}
+
+// ============================
+//  WORKER SERVICE DEFINITION
+// ============================
+
+// gRPC service exposed by Worker (for tasks)
+// and used by Coordinator for Heartbeat registration
+service WorkerService {
+  rpc ExecuteTask (TaskRequest) returns (TaskResponse);
+  rpc Heartbeat (HeartbeatRequest) returns (HeartbeatResponse);
+}

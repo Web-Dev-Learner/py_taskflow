@@ -1,0 +1,105 @@
+services:
+  db:
+    image: postgres:16
+    container_name: pytaskflow-db
+    restart: always
+    env_file:
+      - .env
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+    ports:
+     - "${POSTGRES_PORT}:5432"
+
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER}"]
+      interval: 3s
+      timeout: 3s
+      retries: 5
+
+  scheduler:
+    build:
+      context: .
+      dockerfile: scheduler.Dockerfile
+    container_name: pytaskflow-scheduler
+    restart: always
+    depends_on:
+      db:
+        condition: service_healthy
+    env_file:
+      - .env
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_HOST: db
+      POSTGRES_PORT: ${POSTGRES_PORT}
+    ports:
+      - "8000:8000"
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:8000/health || exit 1"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+      start_period: 15s
+
+  coordinator:
+    build:
+      context: .
+      dockerfile: coordinator.Dockerfile
+    container_name: pytaskflow-coordinator
+    restart: always
+    depends_on:
+      db:
+        condition: service_healthy
+      scheduler:
+        condition: service_healthy
+    env_file:
+      - .env
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_HOST: ${POSTGRES_HOST}
+      POSTGRES_PORT: ${POSTGRES_PORT}
+
+  worker:
+    build:
+      context: .
+      dockerfile: worker.Dockerfile
+    container_name: pytaskflow-worker
+    restart: always
+    depends_on:
+      db:
+        condition: service_healthy
+      coordinator:
+        condition: service_started
+    env_file:
+      - .env
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_HOST: ${POSTGRES_HOST}
+      POSTGRES_PORT: ${POSTGRES_PORT}
+      COORDINATOR_HOST: coordinator
+      COORDINATOR_HEARTBEAT_PORT: ${COORDINATOR_HEARTBEAT_PORT}
+
+  frontend:
+    build:
+      context: .
+      dockerfile: frontend.Dockerfile
+    container_name: pytaskflow-frontend
+    env_file:
+      - .env
+    ports:
+      - "5173:80"
+    depends_on:
+      scheduler:
+        condition: service_healthy
+
+volumes:
+  pgdata:
