@@ -93,6 +93,7 @@ services:
       context: .
       dockerfile: frontend.Dockerfile
     container_name: pytaskflow-frontend
+    restart: unless-stopped
     env_file:
       - .env
     ports:
