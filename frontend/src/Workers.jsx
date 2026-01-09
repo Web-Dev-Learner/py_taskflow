@@ -1,21 +1,15 @@
 import React, { useEffect, useState } from "react";
 
-// const API_BASE = import.meta.env.VITE_API_BASE_URL || "http://127.0.0.1:8000";
-
-
-
 const API_BASE = import.meta.env.VITE_API_BASE_URL ?? window.location.origin;
 
 if (import.meta.env.MODE === "production" && !import.meta.env.VITE_API_BASE_URL) {
-  // Helpful runtime warning if you forgot to set the build-time env for production.
-  // This will show in the browser console of deployed app.
-  console.warn("VITE_API_BASE_URL is not set. Falling back to window.location.origin:", API_BASE);
+  console.warn(
+    "VITE_API_BASE_URL is not set. Falling back to window.location.origin:",
+    API_BASE
+  );
 } else {
-  // Helpful in dev to confirm which API URL is used
   console.log("API_BASE =", API_BASE);
 }
-
-
 
 export default function Workers() {
   const [workers, setWorkers] = useState([]);
@@ -48,39 +42,62 @@ export default function Workers() {
 
   return (
     <div>
-      <div
-        className={`text-sm mb-3 font-medium ${
-          connected ? "text-green-600" : "text-red-600"
-        }`}
-      >
-        SSE Status: {connected ? "Connected" : "Disconnected"}
-      </div>
+      {/* SSE status */}
+      {/* Show warning ONLY when disconnected */}
+{!connected && (
+  <div className="text-sm mb-3 font-medium text-red-600">
+    ⚠ Live updates disconnected
+  </div>
+)}
+
 
       <div className="space-y-3">
-        {workers.map((w) => (
-          <div
-            key={w.id}
-            className="p-3 rounded-lg border bg-gray-50 shadow-sm hover:shadow-md transition"
-          >
-            <div className="font-medium text-gray-800">{w.hostname}</div>
-            <div className="text-sm">
-              Status:{" "}
-              <span
-                className={
-                  w.status === "alive" ? "text-green-600" : "text-red-600"
-                }
-              >
-                {w.status}
-              </span>
+        {workers.map((w, index) => {
+          // 🔒 SAFE ID HANDLING (real-world correct)
+          const sourceId = w.hostname ?? w.id ?? "";
+          const shortId = String(sourceId).slice(-6);
+
+          return (
+            <div
+              key={String(sourceId) || index}
+              className="p-3 rounded-lg border bg-white shadow-sm hover:shadow-md transition"
+            >
+              {/* Display name */}
+              <div className="font-semibold text-gray-800">
+                Worker {index + 1}
+              </div>
+
+              {/* ID (secondary) */}
+              <div className="text-xs text-gray-500">
+                ID: {shortId || "unknown"}
+              </div>
+
+              {/* Status */}
+              <div className="text-sm mt-1">
+                Status:{" "}
+                <span
+                  className={
+                    w.status === "alive"
+                      ? "text-green-600 font-medium"
+                      : "text-red-600 font-medium"
+                  }
+                >
+                  {w.status}
+                </span>
+              </div>
+
+              {/* Heartbeat */}
+              <div className="text-xs text-gray-500 mt-1">
+                Last heartbeat: {w.last_heartbeat}
+              </div>
             </div>
-            <div className="text-xs text-gray-500">
-              Last heartbeat: {w.last_heartbeat}
-            </div>
-          </div>
-        ))}
+          );
+        })}
 
         {workers.length === 0 && (
-          <div className="text-gray-500 text-sm">No workers connected</div>
+          <div className="text-gray-500 text-sm">
+            No workers connected
+          </div>
         )}
       </div>
     </div>

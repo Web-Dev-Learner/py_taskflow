@@ -1,5 +1,3 @@
-# C:\Users\shrinedhi\PyTaskFlow\utils\logger.py
-
 import logging
 import structlog
 from colorlog import ColoredFormatter
