@@ -27,7 +27,7 @@ export default function TaskTable() {
 
   useEffect(() => {
     fetchTasks();
-    const id = setInterval(fetchTasks, 5000);
+    const id = setInterval(fetchTasks, 15000);
     return () => clearInterval(id);
   }, []);
 

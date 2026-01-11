@@ -29,7 +29,7 @@ export default function Metrics() {
 
   useEffect(() => {
     fetchMetrics();
-    const id = setInterval(fetchMetrics, 5000);
+    const id = setInterval(fetchMetrics, 15000);
     return () => clearInterval(id);
   }, []);
 
