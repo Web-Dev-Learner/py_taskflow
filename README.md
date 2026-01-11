@@ -1,76 +1,222 @@
-<h1> PyTaskFlow – Distributed Task Scheduler</h1>
+# PyTaskFlow – Distributed Task Scheduler
 
-<p>
-<b>PyTaskFlow</b> is a lightweight <b>distributed task scheduling and execution system</b> built using Python,
-FastAPI, gRPC, React, PostgreSQL, and Docker.  
-It supports real-time task processing, worker health monitoring, retries, task lifecycle tracking, 
-and a live dashboard for complete visibility.
-</p>
+PyTaskFlow is a distributed task scheduling and execution system built using Python , FastAPI, gRPC, PostgreSQL, React, and Docker.  
+It enables reliable scheduling, asynchronous execution, automatic retries, worker health monitoring, and real-time observability.  
+The system  uses gRPC for internal coordination, and is deployed using Docker in a production-style cloud setup.
 
-<hr/>
+---
 
-<h2> Project Overview </h2>
-
-<p>
-A microservices-based system where tasks are submitted via a scheduler, 
-dispatched by a coordinator, executed by distributed workers, and monitored through a live React dashboard.  
-Includes worker heartbeats, retry logic, task lifecycle timestamps, and structured logging.
-</p>
-
-<hr/>
-
-<h2> Key Features</h2>
+## Key Features
 
 <ul>
-  <li>✔ <b>Distributed Task Execution</b> using multiple gRPC workers</li>
-  <li>✔ <b>Task Scheduling</b> (immediate & future execution)</li>
-  <li>✔ <b>Retry Logic</b> with retry_count & retry_at timestamps</li>
-  <li>✔ <b>Worker Heartbeats</b> (ONLINE / OFFLINE detection)</li>
-  <li>✔ <b>Task Lifecycle Tracking</b> 
-      (created, scheduled, picked, started, completed, failed)</li>
-  <li>✔ <b>Real-Time Monitoring Dashboard</b> (React + Tailwind)</li>
-  <li>✔ <b>Metrics API</b> for system health & task statistics</li>
-  <li>✔ <b>Structured Colored Logging</b> using structlog + colorlog</li>
-  <li>✔ <b>Fully Dockerized</b> multi-service deployment</li>
+  <li>Distributed task scheduling and execution</li>
+  <li>Time-based (future) task scheduling</li>
+  <li>Asynchronous task execution</li>
+  <li>Full task lifecycle tracking</li>
+  <li>Automatic retries with exponential backoff</li>
+  <li>Worker heartbeat and liveness detection</li>
+  <li>Real-time monitoring dashboard</li>
+  <li>Structured, color-coded logging</li>
+  <li>Fully Dockerized microservices</li>
+  <li>Cloud-deployable on AWS</li>
 </ul>
 
-<hr/>
+---
 
-<h2> Core Functions</h2>
+## Problem Statement
+
+In real-world systems, background jobs must be:
 
 <ul>
-  <li><b>Scheduler (FastAPI)</b> – Accept tasks, store in PostgreSQL, expose APIs</li>
-  <li><b>Coordinator (gRPC)</b> – Poll pending tasks, assign to workers, update status</li>
-  <li><b>Worker (gRPC)</b> – Execute assigned tasks, send results & heartbeats</li>
-  <li><b>React Dashboard</b> – Live view of workers, tasks, metrics</li>
+  <li>Scheduled reliably</li>
+  <li>Executed asynchronously</li>
+  <li>Retried on failure</li>
+  <li>Recoverable after restarts</li>
+  <li>Scalable across multiple workers</li>
+  <li>Observable in real time</li>
 </ul>
 
-<hr/>
+PyTaskFlow addresses these challenges by separating responsibilities into well-defined services that communicate using REST and gRPC, while persisting system state in a durable PostgreSQL database.
 
-<h2> How It Works</h2>
+---
 
-<ol>
-  <li>User creates task → Scheduler stores it in DB</li>
-  <li>Coordinator polls DB for <b>PENDING</b> tasks</li>
-  <li>Coordinator assigns a task to an <b>available worker</b></li>
-  <li>Worker executes the command and returns result</li>
-  <li>Coordinator updates DB (SUCCESS / FAILED / RETRYING)</li>
-  <li>Frontend shows live updates (tasks + workers + metrics)</li>
-</ol>
+## System Architecture
 
-<hr/>
+<pre>
+User
+ ↓
+React Dashboard
+ ↓ (REST / SSE)
+Scheduler (FastAPI)
+ ↓ (Durable State)
+PostgreSQL
+ ↓ (Periodic Querying)
+Coordinator
+ ↓ (gRPC)
+Worker(s)
+ ↑ (Heartbeat)
+Coordinator
+</pre>
 
-<h2> Tech Stack</h2>
+---
+
+## Architectural Principles
 
 <ul>
-  <li><b>Frontend:</b> React, Vite, TailwindCSS</li>
-  <li><b>Backend:</b> FastAPI (Scheduler), Python gRPC (Coordinator & Worker)</li>
-  <li><b>Database:</b> PostgreSQL</li>
-  <li><b>Communication:</b> REST + gRPC</li>
-  <li><b>Infra:</b> Docker, Docker Compose</li>
-  <li><b>Logging:</b> structlog, colorlog</li>
+  <li>Separation of concerns</li>
+  <li>Microservice-style architecture</li>
+  <li>Control plane vs execution plane separation</li>
+  <li>Async and non-blocking I/O</li>
+  <li>Fault isolation and observability</li>
 </ul>
 
+---
 
+## Technology Stack
 
+### Backend
+<ul>
+  <li>Python 3.12</li>
+  <li>FastAPI (REST API)</li>
+  <li>SQLAlchemy (Async ORM)</li>
+  <li>PostgreSQL</li>
+  <li>gRPC with Protocol Buffers</li>
+  <li>asyncio</li>
+</ul>
 
+### Frontend
+<ul>
+  <li>React 18</li>
+  <li>Vite</li>
+  <li>Tailwind CSS</li>
+  <li>Server-Sent Events (SSE)</li>
+</ul>
+
+### DevOps / Infrastructure
+<ul>
+  <li>Docker</li>
+  <li>Docker Compose</li>
+  <li>Nginx </li>
+  <li>AWS EC2 </li>
+  <li>Let’s Encrypt SSL (Certbot)</li>
+  <li>DuckDNS</li>
+</ul>
+
+### Observability
+<ul>
+  <li>structlog</li>
+  <li>colorlog</li>
+  <li>Health check endpoints</li>
+  <li>Metrics endpoints (JSON and Prometheus-style)</li>
+</ul>
+
+---
+
+## Core Services
+
+### Scheduler (FastAPI – REST API)
+<ul>
+  <li>Accepts task submissions</li>
+  <li>Validates input using Pydantic</li>
+  <li>Persists tasks in PostgreSQL</li>
+  <li>Exposes REST APIs for dashboard consumption</li>
+  <li>Provides health and metrics endpoints</li>
+  <li>Streams real-time updates via SSE</li>
+</ul>
+
+### Coordinator (gRPC – Control Plane)
+<ul>
+  <li>Periodically queries the database for due tasks</li>
+  <li>Dispatches tasks to workers via gRPC</li>
+  <li>Tracks worker heartbeats</li>
+  <li>Detects dead workers</li>
+  <li>Handles retries with exponential backoff</li>
+</ul>
+
+### Worker (gRPC – Execution Plane)
+<ul>
+  <li>Executes task commands asynchronously</li>
+  <li>Limits concurrency using semaphores</li>
+  <li>Reports execution results</li>
+  <li>Sends periodic heartbeats</li>
+</ul>
+
+### React Dashboard
+<ul>
+  <li>Schedule new tasks</li>
+  <li>View task history</li>
+  <li>Monitor worker health</li>
+  <li>Observe live system metrics</li>
+</ul>
+
+---
+
+## Database Design
+
+### Task Table
+<ul>
+  <li>Full task lifecycle tracking</li>
+  <li>created → scheduled → picked → running → completed / failed</li>
+  <li>Execution timestamps</li>
+  <li>Retry count and retry scheduling</li>
+</ul>
+
+### Worker Table
+<ul>
+  <li>Worker identity</li>
+  <li>Last heartbeat timestamp</li>
+  <li>Alive / dead status</li>
+</ul>
+
+---
+
+## gRPC and Protocol Buffers
+
+<ul>
+  <li>Internal service communication via gRPC</li>
+  <li>Strongly-typed contracts using Protocol Buffers</li>
+  <li>Single source of truth: <code>task.proto</code></li>
+</ul>
+
+---
+
+## Observability and Monitoring
+
+<ul>
+  <li>Structured, service-specific logging</li>
+  <li>Color-coded log levels</li>
+  <li>Health check endpoints</li>
+  <li>Metrics APIs</li>
+  <li>Real-time worker monitoring via SSE</li>
+</ul>
+
+---
+
+## AWS Deployment (Docker-based)
+
+<ul>
+  <li>AWS EC2 </li>
+  <li>Dockerized services:
+    <ul>
+      <li>Scheduler</li>
+      <li>Coordinator</li>
+      <li>Worker(s)</li>
+      <li>PostgreSQL</li>
+    </ul>
+  </li>
+  <li>Docker Compose for orchestration</li>
+  <li>Nginx as reverse proxy and HTTPS termination</li>
+</ul>
+
+---
+
+## One-Line Summary
+
+PyTaskFlow is a distributed task scheduling system built with FastAPI, gRPC, PostgreSQL, React, and Docker that demonstrates real-world orchestration, execution, observability, and fault-tolerant system design.
+
+---
+
+## Final Note
+
+This project demonstrates backend engineering depth, system design thinking, and production-style DevOps practices.  
+PyTaskFlow is a complete distributed system, not just an application.
