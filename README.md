@@ -210,13 +210,4 @@ Coordinator
 
 ---
 
-## One-Line Summary
 
-PyTaskFlow is a distributed task scheduling system built with FastAPI, gRPC, PostgreSQL, React, and Docker that demonstrates real-world orchestration, execution, observability, and fault-tolerant system design.
-
----
-
-## Final Note
-
-This project demonstrates backend engineering depth, system design thinking, and production-style DevOps practices.  
-PyTaskFlow is a complete distributed system, not just an application.
