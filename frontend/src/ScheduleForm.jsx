@@ -6,14 +6,14 @@ import axios from "axios";
 
 const API_BASE = import.meta.env.VITE_API_BASE_URL ?? window.location.origin;
 
-if (import.meta.env.MODE === "production" && !import.meta.env.VITE_API_BASE_URL) {
+// if (import.meta.env.MODE === "production" && !import.meta.env.VITE_API_BASE_URL) {
   // Helpful runtime warning if you forgot to set the build-time env for production.
   // This will show in the browser console of deployed app.
-  console.warn("VITE_API_BASE_URL is not set. Falling back to window.location.origin:", API_BASE);
-} else {
+//   console.warn("VITE_API_BASE_URL is not set. Falling back to window.location.origin:", API_BASE);
+// } else {
   // Helpful in dev to confirm which API URL is used
-  console.log("API_BASE =", API_BASE);
-}
+//   console.log("API_BASE =", API_BASE);
+// }
 
 
 export default function ScheduleForm() {

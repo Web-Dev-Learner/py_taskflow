@@ -4,11 +4,11 @@ import React, { useEffect, useState } from "react";
 
 const API_BASE = import.meta.env.VITE_API_BASE_URL ?? window.location.origin;
 
-if (import.meta.env.MODE === "production" && !import.meta.env.VITE_API_BASE_URL) {
-  console.warn("VITE_API_BASE_URL is not set. Falling back to window.location.origin:", API_BASE);
-} else {
-  console.log("API_BASE =", API_BASE);
-}
+// if (import.meta.env.MODE === "production" && !import.meta.env.VITE_API_BASE_URL) {
+//   console.warn("VITE_API_BASE_URL is not set. Falling back to window.location.origin:", API_BASE);
+// } else {
+//   console.log("API_BASE =", API_BASE);
+// }
 
 export default function TaskTable() {
   const [tasks, setTasks] = useState([]);
