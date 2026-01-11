@@ -86,7 +86,7 @@ Coordinator
 
 ### Frontend
 <ul>
-  <li>React 18</li>
+  <li>React </li>
   <li>Vite</li>
   <li>Tailwind CSS</li>
   <li>Server-Sent Events (SSE)</li>
@@ -209,5 +209,6 @@ Coordinator
 </ul>
 
 ---
+
 
 
